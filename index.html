@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero Gravity Group</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> 
+    <link rel="icon" type="image/png" href="assests/logo-zerogravity.png">
+    <link rel="stylesheet" href="style.css">
+
+
+
+</head>
+<body>
+    <!-- Navbar Section --> 
+    <nav class="navbar">
+        <div class="logo">
+            <img src="assests/logo-zerogravity.png" alt="Zero Gravity Group Logo">
+        </div>
+        
+        <a href="https://zerogravity.group/" target="_blank">More info</a>
+    </nav>
+
+    <section class="hero-section">                
+    
+            <div class="form-content-wrapper">
+                    <h1 class="header">One Group, Endless Creative & Business Solutions.<br>in Chennai</h1>
+
+                <div class="contact-form">
+                    
+                    
+                    <form id="quoteForm" name="submit-to-google-sheet-2">
+                        <div class="form-group">
+                          <label for="name">Name <span style="color:red">*</span></label>
+                          <input type="text" id="name" name="name" placeholder="Enter Your Name" required>
+                        </div>
+                      
+                        <div class="form-group">
+                          <label for="company">Contact Number <span style="color:red">*</span></label>
+                          <input type="tel" id="contact number" name="contact-number" placeholder="contact number" required>
+                        </div>
+                    
+                        <div class="form-group">
+                          <label for="phoneNumber">Designation<span style="color:red">*</span></label>
+                          <input type="text" id="Designation" name="phone-number" placeholder="Designation" required>
+                        </div>
+
+                         <div class="form-group">
+                          <label for="phoneNumber">Company Name<span style="color:red">*</span></label>
+                          <input type="text" id="company name" name="company-name" placeholder="company name" required>
+                        </div>
+
+                        <div class="form-group">
+                          <label for="">Enquiry Products</label>
+                          <select name="enquiry-products" id="enquiry-products" required>
+                                <option value="PHOTOGRAPHY">PHOTOGRAPHY</option>
+                                <option value="DIVINE CATERS">DIVINE CATERS</option>
+                                <option value="VERMILLION">VERMILLION</option>
+                                <option value="ALBUMS">ALBUMS</option>
+                                <option value="RIGID BOX">RIGID BOX</option>
+                                <option value="ZG SHOP">ZG SHOP</option>
+                                <option value="ZG DIGITAL">ZG DIGITAL</option>
+                                <option value="SOFTWARE">SOFTWARE</option>
+                            </select>
+                        </div>
+                      
+                        <button type="submit" id="submitBtn">Get Quote</button>
+                      </form>
+                      
+                </div>
+                 
+            </div>
+        
+    </section>
+
+
+
+    <script>
+        
+        // google sheet connect
+const scriptURL = 'https://script.google.com/macros/s/AKfycbyQQJFIFGPcr1h2b0RTsNx0RrVCFZwFij2U7C1mqsL9cC1YtuSliiBE1Gnn2q4pPGve/exec';
+
+
+const contactForm = document.forms['submit-to-google-sheet-2'];
+
+function handleSubmit(form) {
+  const popup = document.createElement('div');
+  popup.id = 'popup-message';
+  document.body.appendChild(popup);
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    fetch(scriptURL, {
+    method: "POST",
+    body: new FormData(form)
+    }).then(res => res.json())
+      .then(data => {
+        if (data.result === 'success') {
+          showPopup('<i class="fa-solid fa-circle-check" style="color:#4caf50; font-size: 24px; margin-right: 8px;"></i><span class="thankyou-highlight">Thank you!</span><br>Your response has been submitted successfully.', 'success', popup);
+
+
+          form.reset();
+        } else {
+          showPopup('❌ Submission failed:<br>' + data.error, 'error', popup);
+        }
+      })
+      .catch(err => {
+        showPopup('❌ Submission error!<br>Please try again later.', 'error', popup);
+      });
+  });
+}
+
+function showPopup(message, type, popup) {
+  popup.innerHTML = `
+ 
+      <div class="popup-content-side">
+        <div class="popup-message">${message}</div>
+        <button id="popup-ok">OK</button>
+      </div>
+   
+  `;
+  popup.className = type;
+  popup.style.display = 'block';
+
+  document.getElementById('popup-ok').onclick = function () {
+    popup.style.display = 'none';
+  };
+}
+
+handleSubmit(contactForm);
+
+  
+</script>
+      
+        
+    
+</body>
+</html>
