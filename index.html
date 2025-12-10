@@ -91,11 +91,14 @@ function handleSubmit(form) {
   form.addEventListener('submit', e => {
     e.preventDefault();
     fetch(scriptURL, {
-    method: "POST",
-    body: new FormData(form)
-    }).then(res => res.json())
+  method: "POST",
+  body: new FormData(form)
+}).then(res => res.json())  
       .then(data => {
+        console.log("Response from API:", data);
         if (data.result === 'success') {
+            console.log("sucesss msg");
+            
           showPopup('<i class="fa-solid fa-circle-check" style="color:#4caf50; font-size: 24px; margin-right: 8px;"></i><span class="thankyou-highlight">Thank you!</span><br>Your response has been submitted successfully.', 'success', popup);
 
 
@@ -131,8 +134,12 @@ handleSubmit(contactForm);
 
   
 </script>
-      
-        
     
+<!-- <div class="overlay" id="loadingOverlay">
+  <div class="loading-container">
+    <div class="spinner"></div>
+    <div class="loading-text">Submitting your request...</div>
+  </div>
+</div> -->
 </body>
 </html>
