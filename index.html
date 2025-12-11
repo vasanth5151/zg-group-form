@@ -46,8 +46,8 @@
                         </div>
 
                          <div class="form-group">
-                          <label for="phoneNumber">Company Name<span style="color:red">*</span></label>
-                          <input type="text" id="company name" name="company-name" placeholder="company name" required>
+                          <label for="phoneNumber">Company Name</label>
+                          <input type="text" id="company name" name="company-name" placeholder="company name">
                         </div>
 
                         <div class="form-group">
@@ -62,7 +62,7 @@
                                 <option value="ZG DIGITAL">ZG DIGITAL</option>
                                 <option value="SOFTWARE">ZG SOFTWARE</option>
                             </select>
-                        </div>
+                         </div>
                       
                         <button type="submit" id="submitBtn">Get Quote</button>
                       </form>
@@ -76,7 +76,6 @@
 
 
     <script>
-        
         // google sheet connect
 const scriptURL = 'https://script.google.com/macros/s/AKfycbyQQJFIFGPcr1h2b0RTsNx0RrVCFZwFij2U7C1mqsL9cC1YtuSliiBE1Gnn2q4pPGve/exec';
 
@@ -88,39 +87,55 @@ function handleSubmit(form) {
   popup.id = 'popup-message';
   document.body.appendChild(popup);
 
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
-    fetch(scriptURL, {
-  method: "POST",
-  body: new FormData(form)
-}).then(res => res.json())  
-      .then(data => {
-        console.log("Response from API:", data);
-        if (data.result === 'success') {
-            console.log("sucesss msg");
-            
-          showPopup('<i class="fa-solid fa-circle-check" style="color:#4caf50; font-size: 24px; margin-right: 8px;"></i><span class="thankyou-highlight">Thank you!</span><br>Your response has been submitted successfully.', 'success', popup);
 
+    const submitBtn = document.getElementById('submitBtn');
+    // query overlay at submit time (overlay is after this script in the DOM)
+    const loadingOverlay = document.getElementById('loadingOverlay');
 
-          form.reset();
-        } else {
-          showPopup('❌ Submission failed:<br>' + data.error, 'error', popup);
-        }
-      })
-      .catch(err => {
-        showPopup('❌ Submission error!<br>Please try again later.', 'error', popup);
-      });
+    function showLoading(show) {
+      if (loadingOverlay) {
+        loadingOverlay.style.display = show ? 'flex' : 'none';
+        loadingOverlay.setAttribute('aria-hidden', show ? 'false' : 'true');
+      }
+      if (submitBtn) submitBtn.disabled = show;
+    }
+
+    showLoading(true);
+
+    try {
+      const res = await fetch(scriptURL, { method: 'POST', body: new FormData(form) });
+      // try to parse JSON if returned, otherwise fallback
+      let data = null;
+      try { data = await res.json(); } catch (err) { /* non-json response */ }
+
+      if (data && data.result === 'success') {
+        showPopup('<i class="fa-solid fa-circle-check" style="color:#4caf50; font-size: 24px; margin-right: 8px;"></i><span class="thankyou-highlight">Thank you!</span><br>Your response has been submitted successfully.', 'success', popup);
+        form.reset();
+      } else if (res.ok && !data) {
+        // server returned ok but no JSON - assume success
+        showPopup('<i class="fa-solid fa-circle-check" style="color:#4caf50; font-size: 24px; margin-right: 8px;"></i><span class="thankyou-highlight">Thank you!</span><br>Your response has been submitted successfully.', 'success', popup);
+        form.reset();
+      } else {
+        const errMsg = data && data.error ? data.error : 'Submission failed. Please try again.';
+        showPopup('❌ Submission failed:<br>' + errMsg, 'error', popup);
+      }
+
+    } catch (err) {
+      showPopup('❌ Submission error!<br>Please try again later.', 'error', popup);
+    } finally {
+      showLoading(false);
+    }
   });
 }
 
 function showPopup(message, type, popup) {
   popup.innerHTML = `
- 
       <div class="popup-content-side">
         <div class="popup-message">${message}</div>
         <button id="popup-ok">OK</button>
       </div>
-   
   `;
   popup.className = type;
   popup.style.display = 'block';
@@ -132,14 +147,14 @@ function showPopup(message, type, popup) {
 
 handleSubmit(contactForm);
 
-  
-</script>
-    
-<!-- <div class="overlay" id="loadingOverlay">
+  </script>
+
+<!-- Loading overlay: shown while the form is submitting -->
+<div class="overlay" id="loadingOverlay" aria-hidden="true" style="display:none;">
   <div class="loading-container">
-    <div class="spinner"></div>
+    <div class="spinner" aria-hidden="true"></div>
     <div class="loading-text">Submitting your request...</div>
   </div>
-</div> -->
+</div>
 </body>
 </html>
